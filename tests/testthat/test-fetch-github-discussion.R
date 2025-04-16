@@ -1,6 +1,10 @@
 test_that("fetch_github_discussion handles issues correctly", {
-  # Skip if no GitHub token is available
-  skip_if_not(Sys.getenv("GITHUB_PAT") != "", "No GitHub token available")
+  # Check for GitHub token in multiple environment variables
+  has_token <- Sys.getenv("GITHUB_PAT") != "" || 
+               Sys.getenv("GITHUB_TOKEN") != "" || 
+               file.exists("~/.github/token")
+  
+  skip_if_not(has_token, "No GitHub token available")
 
   # Use a real GitHub issue
   result <- fetch_github_discussion("r-lib/gh#27")
@@ -13,8 +17,12 @@ test_that("fetch_github_discussion handles issues correctly", {
 })
 
 test_that("fetch_github_discussion handles PRs correctly", {
-  # Skip if no GitHub token is available
-  skip_if_not(Sys.getenv("GITHUB_PAT") != "", "No GitHub token available")
+  # Check for GitHub token in multiple environment variables
+  has_token <- Sys.getenv("GITHUB_PAT") != "" || 
+               Sys.getenv("GITHUB_TOKEN") != "" || 
+               file.exists("~/.github/token")
+  
+  skip_if_not(has_token, "No GitHub token available")
 
   # Use a real GitHub PR
   result <- fetch_github_discussion("r-lib/gh#56")

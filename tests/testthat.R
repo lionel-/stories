@@ -8,6 +8,10 @@
 
 library(testthat)
 library(stories)
-library(dotenv)
+
+# Load environment variables from .env file if dotenv is available
+if (requireNamespace("dotenv", quietly = TRUE)) {
+  dotenv::load_dot_env()
+}
 
 test_check("stories")
