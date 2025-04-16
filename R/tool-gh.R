@@ -12,13 +12,16 @@ fetch_github_discussion <- function(reference) {
   number <- parsed_ref$number
 
   # Try to fetch as PR first, if it fails, fetch as issue
-  tryCatch({
-    item_data <- fetch_pull_request(owner, repo, number)
-    resource_type <- "pr"
-  }, error = function(e) {
-    item_data <- fetch_issue(owner, repo, number)
-    resource_type <- "issue"
-  })
+  tryCatch(
+    {
+      item_data <- fetch_pull_request(owner, repo, number)
+      resource_type <- "pr"
+    },
+    error = function(e) {
+      item_data <- fetch_issue(owner, repo, number)
+      resource_type <- "issue"
+    }
+  )
 
   # Fetch all comments
   comments <- fetch_all_comments(owner, repo, number, resource_type)
@@ -69,11 +72,11 @@ parse_github_reference <- function(reference) {
       )
     }
 
-    return(list(
+    list(
       owner = result[2],
       repo = result[3],
       number = as.integer(result[4])
-    ))
+    )
   }
 }
 
@@ -86,10 +89,12 @@ parse_github_reference <- function(reference) {
 #' @return Issue data as list
 #' @keywords internal
 fetch_issue <- function(owner, repo, number) {
-  gh::gh("GET /repos/{owner}/{repo}/issues/{issue_number}",
-         owner = owner,
-         repo = repo,
-         issue_number = number)
+  gh::gh(
+    "GET /repos/{owner}/{repo}/issues/{issue_number}",
+    owner = owner,
+    repo = repo,
+    issue_number = number
+  )
 }
 
 #' Fetch pull request data using gh package
@@ -100,10 +105,12 @@ fetch_issue <- function(owner, repo, number) {
 #' @return PR data as list
 #' @keywords internal
 fetch_pull_request <- function(owner, repo, number) {
-  gh::gh("GET /repos/{owner}/{repo}/pulls/{pull_number}",
-         owner = owner,
-         repo = repo,
-         pull_number = number)
+  gh::gh(
+    "GET /repos/{owner}/{repo}/pulls/{pull_number}",
+    owner = owner,
+    repo = repo,
+    pull_number = number
+  )
 }
 
 #' Fetch all comments for an issue or PR
@@ -122,12 +129,12 @@ fetch_all_comments <- function(owner, repo, number, resource_type) {
     issue_number = number,
     .limit = Inf
   )
-  
+
   # Convert to data frame if there are comments
   if (length(comments) > 0) {
-    comments <- do.call(rbind, lapply(comments, as.data.frame))
+    comments <- do.call("rbind", lapply(comments, \(x) as.data.frame(x)))
   }
-  
+
   comments
 }
 
@@ -146,11 +153,11 @@ fetch_all_review_comments <- function(owner, repo, number) {
     pull_number = number,
     .limit = Inf
   )
-  
+
   # Convert to data frame if there are comments
   if (length(comments) > 0) {
-    comments <- do.call(rbind, lapply(comments, as.data.frame))
+    comments <- do.call("rbind", lapply(comments, \(x) as.data.frame(x)))
   }
-  
+
   comments
 }
