@@ -48,33 +48,33 @@ parse_github_reference <- function(reference) {
     matches <- regexec(pattern, reference)
     result <- regmatches(reference, matches)[[1]]
 
-    if (length(result) == 0) {
+    if (length(result) < 5) {
       stop("Invalid GitHub URL format")
     }
 
-    list(
+    return(list(
       owner = result[2],
       repo = result[3],
       number = as.integer(result[5])
-    )
+    ))
+  } else {
+    # Handle owner/repo#number format
+    pattern <- "^([^/]+)/([^#]+)#(\\d+)$"
+    matches <- regexec(pattern, reference)
+    result <- regmatches(reference, matches)[[1]]
+
+    if (length(result) < 4) {
+      stop(
+        "Invalid reference format. Expected 'owner/repo#number' or GitHub URL"
+      )
+    }
+
+    return(list(
+      owner = result[2],
+      repo = result[3],
+      number = as.integer(result[4])
+    ))
   }
-
-  # Handle owner/repo#number format
-  pattern <- "^([^/]+)/([^#]+)#(\\d+)$"
-  matches <- regexec(pattern, reference)
-  result <- regmatches(reference, matches)[[1]]
-
-  if (length(result) == 0) {
-    stop(
-      "Invalid reference format. Expected 'owner/repo#number' or GitHub URL"
-    )
-  }
-
-  list(
-    owner = result[2],
-    repo = result[3],
-    number = as.integer(result[4])
-  )
 }
 
 
