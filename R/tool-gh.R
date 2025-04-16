@@ -137,6 +137,11 @@ fetch_all_comments <- function(owner, repo, number, resource_type) {
     .limit = Inf
   )
 
+  # Ensure we always return a list
+  if (is.null(comments)) {
+    return(list())
+  }
+  
   # Return the raw comments list
   comments
 }
@@ -157,6 +162,11 @@ fetch_all_review_comments <- function(owner, repo, number) {
     .limit = Inf
   )
 
+  # Ensure we always return a list
+  if (is.null(comments)) {
+    return(list())
+  }
+  
   # Return the raw comments list
   comments
 }
