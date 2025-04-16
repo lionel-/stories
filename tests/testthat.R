@@ -8,5 +8,6 @@
 
 library(testthat)
 library(stories)
+library(dotenv)
 
 test_check("stories")
