@@ -1,0 +1,10 @@
+Package: stories
+Title: Make stories from your histories
+Version: 0.0.0.9000
+Authors@R:
+    person("Lionel", "Henry", , "lionel@posit.co", role = c("aut", "cre"))
+Description: Uses AI to make sense of git histories.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
