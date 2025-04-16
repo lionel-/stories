@@ -40,6 +40,9 @@ fetch_github_discussion <- function(reference) {
   if (resource_type == "pr") {
     review_comments <- fetch_all_review_comments(owner, repo, number)
     item_data$review_comments <- review_comments
+  } else {
+    # Ensure review_comments is always a list for issues
+    item_data$review_comments <- list()
   }
 
   item_data
