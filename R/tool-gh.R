@@ -130,11 +130,7 @@ fetch_all_comments <- function(owner, repo, number, resource_type) {
     .limit = Inf
   )
 
-  # Convert to data frame if there are comments
-  if (length(comments) > 0) {
-    comments <- do.call("rbind", lapply(comments, \(x) as.data.frame(x)))
-  }
-
+  # Return the raw comments list
   comments
 }
 
@@ -154,10 +150,6 @@ fetch_all_review_comments <- function(owner, repo, number) {
     .limit = Inf
   )
 
-  # Convert to data frame if there are comments
-  if (length(comments) > 0) {
-    comments <- do.call("rbind", lapply(comments, \(x) as.data.frame(x)))
-  }
-
+  # Return the raw comments list
   comments
 }
