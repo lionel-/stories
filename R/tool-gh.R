@@ -3,6 +3,7 @@
 #' @param reference GitHub reference in the format 'owner/repo#number' or a full URL
 #' @return A list containing the issue/PR data along with all comments
 #' @export
+#' @importFrom gh gh
 fetch_github_discussion <- function(reference) {
   # Parse the reference to extract owner, repo, and issue/PR number
   parsed_ref <- parse_github_reference(reference)
@@ -10,16 +11,14 @@ fetch_github_discussion <- function(reference) {
   repo <- parsed_ref$repo
   number <- parsed_ref$number
 
-  # Determine if it's an issue or PR
-  resource_type <- get_resource_type(owner, repo, number)
-
-  # Fetch the issue/PR details
-  if (resource_type == "issue") {
-    item_data <- fetch_issue(owner, repo, number)
-  } else {
-    # PR
+  # Try to fetch as PR first, if it fails, fetch as issue
+  tryCatch({
     item_data <- fetch_pull_request(owner, repo, number)
-  }
+    resource_type <- "pr"
+  }, error = function(e) {
+    item_data <- fetch_issue(owner, repo, number)
+    resource_type <- "issue"
+  })
 
   # Fetch all comments
   comments <- fetch_all_comments(owner, repo, number, resource_type)
@@ -78,30 +77,8 @@ parse_github_reference <- function(reference) {
   )
 }
 
-#' Determine if a GitHub resource is an issue or PR
-#'
-#' @param owner Repository owner
-#' @param repo Repository name
-#' @param number Issue or PR number
-#' @return String "issue" or "pr"
-#' @keywords internal
-get_resource_type <- function(owner, repo, number) {
-  # Run gh api to check if it's a PR
-  cmd <- sprintf('gh api repos/%s/%s/pulls/%d --silent', owner, repo, number)
-  result <- tryCatch(
-    {
-      system(cmd, intern = TRUE)
-      "pr"
-    },
-    error = function(e) {
-      "issue"
-    }
-  )
 
-  result
-}
-
-#' Fetch issue data using gh CLI
+#' Fetch issue data using gh package
 #'
 #' @param owner Repository owner
 #' @param repo Repository name
@@ -109,12 +86,13 @@ get_resource_type <- function(owner, repo, number) {
 #' @return Issue data as list
 #' @keywords internal
 fetch_issue <- function(owner, repo, number) {
-  cmd <- sprintf('gh api repos/%s/%s/issues/%d', owner, repo, number)
-  result <- system(cmd, intern = TRUE)
-  jsonlite::fromJSON(paste(result, collapse = ""))
+  gh::gh("GET /repos/{owner}/{repo}/issues/{issue_number}",
+         owner = owner,
+         repo = repo,
+         issue_number = number)
 }
 
-#' Fetch pull request data using gh CLI
+#' Fetch pull request data using gh package
 #'
 #' @param owner Repository owner
 #' @param repo Repository name
@@ -122,9 +100,10 @@ fetch_issue <- function(owner, repo, number) {
 #' @return PR data as list
 #' @keywords internal
 fetch_pull_request <- function(owner, repo, number) {
-  cmd <- sprintf('gh api repos/%s/%s/pulls/%d', owner, repo, number)
-  result <- system(cmd, intern = TRUE)
-  jsonlite::fromJSON(paste(result, collapse = ""))
+  gh::gh("GET /repos/{owner}/{repo}/pulls/{pull_number}",
+         owner = owner,
+         repo = repo,
+         pull_number = number)
 }
 
 #' Fetch all comments for an issue or PR
@@ -136,37 +115,20 @@ fetch_pull_request <- function(owner, repo, number) {
 #' @return List of comments
 #' @keywords internal
 fetch_all_comments <- function(owner, repo, number, resource_type) {
-  all_comments <- list()
-  page <- 1
-  per_page <- 100
-
-  repeat {
-    cmd <- sprintf(
-      'gh api repos/%s/%s/issues/%d/comments?per_page=%d&page=%d',
-      owner,
-      repo,
-      number,
-      per_page,
-      page
-    )
-    result <- system(cmd, intern = TRUE)
-    comments <- jsonlite::fromJSON(paste(result, collapse = ""))
-
-    if (length(comments) == 0) {
-      break
-    }
-
-    all_comments <- c(all_comments, list(comments))
-
-    if (length(comments) < per_page) {
-      break
-    }
-
-    page <- page + 1
+  comments <- gh::gh(
+    "GET /repos/{owner}/{repo}/issues/{issue_number}/comments",
+    owner = owner,
+    repo = repo,
+    issue_number = number,
+    .limit = Inf
+  )
+  
+  # Convert to data frame if there are comments
+  if (length(comments) > 0) {
+    comments <- do.call(rbind, lapply(comments, as.data.frame))
   }
-
-  # Flatten the list of comments
-  do.call(rbind, all_comments)
+  
+  comments
 }
 
 #' Fetch all review comments for a PR
@@ -177,35 +139,18 @@ fetch_all_comments <- function(owner, repo, number, resource_type) {
 #' @return List of review comments
 #' @keywords internal
 fetch_all_review_comments <- function(owner, repo, number) {
-  all_comments <- list()
-  page <- 1
-  per_page <- 100
-
-  repeat {
-    cmd <- sprintf(
-      'gh api repos/%s/%s/pulls/%d/comments?per_page=%d&page=%d',
-      owner,
-      repo,
-      number,
-      per_page,
-      page
-    )
-    result <- system(cmd, intern = TRUE)
-    comments <- jsonlite::fromJSON(paste(result, collapse = ""))
-
-    if (length(comments) == 0) {
-      break
-    }
-
-    all_comments <- c(all_comments, list(comments))
-
-    if (length(comments) < per_page) {
-      break
-    }
-
-    page <- page + 1
+  comments <- gh::gh(
+    "GET /repos/{owner}/{repo}/pulls/{pull_number}/comments",
+    owner = owner,
+    repo = repo,
+    pull_number = number,
+    .limit = Inf
+  )
+  
+  # Convert to data frame if there are comments
+  if (length(comments) > 0) {
+    comments <- do.call(rbind, lapply(comments, as.data.frame))
   }
-
-  # Flatten the list of comments
-  do.call(rbind, all_comments)
+  
+  comments
 }
