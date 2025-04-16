@@ -12,16 +12,23 @@ fetch_github_discussion <- function(reference) {
   number <- parsed_ref$number
 
   # Try to fetch as PR first, if it fails, fetch as issue
-  tryCatch(
+  result <- tryCatch(
     {
-      item_data <- fetch_pull_request(owner, repo, number)
-      resource_type <- "pr"
+      list(
+        item_data = fetch_pull_request(owner, repo, number),
+        resource_type = "pr"
+      )
     },
     error = function(e) {
-      item_data <- fetch_issue(owner, repo, number)
-      resource_type <- "issue"
+      list(
+        item_data = fetch_issue(owner, repo, number),
+        resource_type = "issue"
+      )
     }
   )
+  
+  item_data <- result$item_data
+  resource_type <- result$resource_type
 
   # Fetch all comments
   comments <- fetch_all_comments(owner, repo, number, resource_type)
