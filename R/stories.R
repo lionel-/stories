@@ -63,6 +63,10 @@ explore further linked discussions if they seem relevant, but avoid going too
 far. Be curious, but stop when you have enough context to provide a meaningful
 analysis.
 
+If there is anything major going on, please investigate (follow links if
+necessary) and report on this. Design changes (and the initial design or
+approach) are of particular interest.
+
 Mention relevant contributors (with clickable links to their Github
 profiles if any) for each change you describe.
 
