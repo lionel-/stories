@@ -62,6 +62,8 @@ profiles if any) for each change you describe.
 Please present your response as a markdown document. Do not include any
 additional commentary or explanations outside of the requested analysis.
 Make sure _every_ github references that you mention are clickable links.
+Do not wrap the markdown in ```md ``` fences, the output should be directly
+usable in a .md file.
 ",
     repo_info$owner,
     repo_info$repo,
