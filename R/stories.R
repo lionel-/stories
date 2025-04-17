@@ -171,21 +171,19 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
     stop("The current document must be saved before generating a story")
   }
 
-  # Get the repository root directory
-  repo_root <- system2("git", c("rev-parse", "--show-toplevel"), stdout = TRUE)
-  if (length(repo_root) == 0 || repo_root == "") {
-    stop("Could not determine the git repository root")
+  # Get the project root directory using rstudioapi
+  project_root <- rstudioapi::getActiveProject()
+  if (is.null(project_root)) {
+    stop("This function requires an RStudio project")
   }
 
-  # Get the file path relative to the repository root
-  relative_path <- system2(
-    "git",
-    c("ls-files", "--full-name", file_path),
-    stdout = TRUE
-  )
-  if (length(relative_path) == 0 || relative_path == "") {
-    stop("The current file is not tracked by git")
-  }
+  # Get the file path relative to the project root
+  # First, normalize paths to ensure consistent format
+  norm_file_path <- normalizePath(file_path, winslash = "/")
+  norm_project_root <- normalizePath(project_root, winslash = "/")
+  
+  # Remove the project root from the file path to get the relative path
+  relative_path <- sub(paste0("^", norm_project_root, "/?"), "", norm_file_path)
 
   # Create a temporary file for the markdown output
   md_file <- tempfile(fileext = ".md")
@@ -194,7 +192,7 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
   md_content <- story(
     file = relative_path,
     fun = fun,
-    path = repo_root,
+    path = project_root,
     model = model,
     echo = FALSE
   )
