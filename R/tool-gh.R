@@ -217,16 +217,23 @@ extract_discussion_items <- function(discussion) {
   items
 }
 
-#' Convert discussion items to YAML format
+#' Get GitHub discussion items as YAML
 #'
-#' This function takes the result of `extract_discussion_items` and converts it
-#' to a YAML string representation.
+#' This function fetches a GitHub issue or PR discussion and returns all
+#' discussion items (the original post and all comments) as YAML.
+#' It's designed to be used as an AI tool to process GitHub discussions.
 #'
-#' @param items List of discussion items from `extract_discussion_items`
-#' @return A character string containing the YAML representation
+#' @param reference GitHub reference in the format 'owner/repo#number' or a full URL
+#' @return A character string containing the YAML representation of all discussion items
 #' @export
 #' @importFrom yaml as.yaml
-discussion_items_to_yaml <- function(items) {
-  # Convert to YAML
+discussion_items <- function(reference) {
+  # Fetch the discussion
+  discussion <- fetch_github_discussion(reference)
+  
+  # Extract the discussion items
+  items <- extract_discussion_items(discussion)
+  
+  # Convert to YAML and return
   yaml::as.yaml(items)
 }

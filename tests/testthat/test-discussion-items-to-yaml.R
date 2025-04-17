@@ -1,22 +1,24 @@
-test_that("discussion_items_to_yaml works with basic items", {
-  # Create sample discussion items
-  items <- list(
-    list(body = "Main post", user_name = "user1"),
-    list(body = "First comment", user_name = "user2"),
-    list(body = "Second comment", user_name = "user3")
-  )
+test_that("discussion_items works with GitHub references", {
+  # Check for GitHub token in multiple environment variables
+  has_token <- Sys.getenv("GITHUB_PAT") != "" || 
+               Sys.getenv("GITHUB_TOKEN") != "" || 
+               file.exists("~/.github/token")
   
-  # Convert to YAML
-  yaml_output <- discussion_items_to_yaml(items)
+  skip_if_not(has_token, "No GitHub token available")
   
-  # Parse back to verify structure
+  # Use a real GitHub issue with a small number of comments
+  yaml_output <- discussion_items("r-lib/gh#27")
+  
+  # Basic validation of the output
+  expect_true(is.character(yaml_output))
+  expect_true(nchar(yaml_output) > 0)
+  
+  # Parse the YAML to verify structure
   parsed <- yaml::yaml.load(yaml_output)
   
-  # Check structure
+  # Check that we have at least the original post
   expect_true(is.list(parsed))
-  expect_equal(length(parsed), 3)
-  expect_equal(parsed[[1]]$body, "Main post")
-  expect_equal(parsed[[1]]$user_name, "user1")
-  expect_equal(parsed[[2]]$body, "First comment")
-  expect_equal(parsed[[3]]$user_name, "user3")
+  expect_true(length(parsed) >= 1)
+  expect_true(!is.null(parsed[[1]]$body))
+  expect_true(!is.null(parsed[[1]]$user_name))
 })
