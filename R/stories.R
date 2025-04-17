@@ -92,6 +92,9 @@ output: html_document
     if (!is.null(fun)) "of the function" else "of the file"
   )
 
+  old_opt <- options(ellmer_timeout_s = 180)
+  on.exit(options(old_opt), add = TRUE)
+
   # Use the AI to generate the story
   chat <- ellmer::chat_openai(
     model = model,
