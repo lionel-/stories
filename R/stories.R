@@ -61,7 +61,8 @@ If commit messages include references to GitHub pull requests or issues, please
 retrieve the associated discussions to gather additional context. You may also
 explore further linked discussions if they seem relevant, but avoid going too
 far. Be curious, but stop when you have enough context to provide a meaningful
-analysis.
+analysis. You should always at least fetch the references directly mentioned in
+the initial set of commit messages.
 
 If there is anything major going on, please investigate (follow links if
 necessary) and report on this. Design changes (and the initial design or
