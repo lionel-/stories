@@ -3,18 +3,18 @@
 #' @name stories
 "_PACKAGE"
 
-#' Generate a story about the development history of a function
+#' Generate a story about the development history of a file or function
 #'
 #' This function uses git log and AI to create a narrative about how a specific
-#' function evolved over time.
+#' file or function evolved over time.
 #'
-#' @param path Path to the git repository
-#' @param fun Name of the function to analyze
-#' @param file Path to the file containing the function, relative to the repo root
+#' @param file Path to the file to analyze, relative to the repo root
+#' @param fun Optional name of the function to analyze within the file (default: NULL)
+#' @param path Path to the git repository (default: ".")
 #' @param model The OpenAI model to use (default: "gpt-4.1")
 #' @return A character string containing the AI-generated story
 #' @export
-stories <- function(path, fun, file, model = "gpt-4.1") {
+stories <- function(file, fun = NULL, path = ".", model = "gpt-4.1") {
   # Save current working directory and restore on exit
   old_wd <- getwd()
   on.exit(setwd(old_wd), add = TRUE)
@@ -25,11 +25,15 @@ stories <- function(path, fun, file, model = "gpt-4.1") {
   # Get GitHub repository information
   repo_info <- get_github_repo_info(path)
 
-  # Create the git log target
-  target <- sprintf(":%s:%s", fun, file)
-
-  # Get the git log for the function
-  log <- system2("git", c("log", "-L", target), stdout = TRUE)
+  # Get the git log based on whether a function is specified
+  if (!is.null(fun)) {
+    # Create the git log target for a specific function
+    target <- sprintf(":%s:%s", fun, file)
+    log <- system2("git", c("log", "-L", target), stdout = TRUE)
+  } else {
+    # Get the git log for the entire file
+    log <- system2("git", c("log", "--follow", "--", file), stdout = TRUE)
+  }
   log <- c("```", log, "```")
   log <- paste(log, collapse = "\n")
 
@@ -38,8 +42,8 @@ stories <- function(path, fun, file, model = "gpt-4.1") {
     "
 You're working with the %s/%s github repository.
 
-I will provide you with the output of `git log -L` for a specific function. Your
-task is to analyze the development history of the function and summarize it in a
+I will provide you with the output of %s for %s. Your
+task is to analyze the development history %s and summarize it in a
 clear and insightful way. Focus on identifying the goals of the authors, any
 challenges they faced, changes in their approach, and any other noteworthy
 details that would be interesting or useful to engineers or end users. Avoid
@@ -60,7 +64,10 @@ additional commentary or explanations outside of the requested analysis.
 Make sure _every_ github references that you mention are clickable links.
 ",
     repo_info$owner,
-    repo_info$repo
+    repo_info$repo,
+    if (!is.null(fun)) "`git log -L`" else "`git log --follow`",
+    if (!is.null(fun)) sprintf("a specific function (%s)", fun) else sprintf("the file %s", file),
+    if (!is.null(fun)) "of the function" else "of the file"
   )
 
   # Use the AI to generate the story
