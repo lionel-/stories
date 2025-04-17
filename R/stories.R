@@ -39,7 +39,7 @@ story <- function(
     log <- system2("git", c("log", "-L", target), stdout = TRUE)
   } else {
     # Get the git log for the entire file
-    log <- system2("git", c("log", "--follow", "--", file), stdout = TRUE)
+    log <- system2("git", c("log", "-p", "--", file), stdout = TRUE)
   }
   log <- c("```", log, "```")
   log <- paste(log, collapse = "\n")
@@ -87,7 +87,7 @@ output: html_document
 ",
     repo_info$owner,
     repo_info$repo,
-    if (!is.null(fun)) "`git log -L`" else "`git log --follow`",
+    if (!is.null(fun)) "`git log -L`" else "`git log -p --`",
     if (!is.null(fun)) sprintf("a specific function (%s)", fun) else
       sprintf("the file %s", file),
     if (!is.null(fun)) "of the function" else "of the file"
