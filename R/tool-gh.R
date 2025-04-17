@@ -1,3 +1,24 @@
+#' Get GitHub discussion items as YAML
+#'
+#' This function fetches a GitHub issue or PR discussion and returns all
+#' discussion items (the original post and all comments) as YAML.
+#' It's designed to be used as an AI tool to process GitHub discussions.
+#'
+#' @param reference GitHub reference in the format 'owner/repo#number' or a full URL
+#' @return A character string containing the YAML representation of all discussion items
+#' @export
+#' @importFrom yaml as.yaml
+discussion_items <- function(reference) {
+  # Fetch the discussion
+  discussion <- fetch_github_discussion(reference)
+
+  # Extract the discussion items
+  items <- extract_discussion_items(discussion)
+
+  # Convert to YAML and return
+  yaml::as.yaml(items)
+}
+
 #' Fetch a GitHub issue or PR and all its discussion
 #'
 #' @param reference GitHub reference in the format 'owner/repo#number' or a full URL
@@ -26,7 +47,7 @@ fetch_github_discussion <- function(reference) {
       )
     }
   )
-  
+
   item_data <- result$item_data
   resource_type <- result$resource_type
 
@@ -144,7 +165,7 @@ fetch_all_comments <- function(owner, repo, number, resource_type) {
   if (is.null(comments)) {
     return(list())
   }
-  
+
   # Return the raw comments list
   comments
 }
@@ -169,7 +190,7 @@ fetch_all_review_comments <- function(owner, repo, number) {
   if (is.null(comments)) {
     return(list())
   }
-  
+
   # Return the raw comments list
   comments
 }
@@ -192,7 +213,7 @@ extract_discussion_items <- function(discussion) {
       created_at = discussion$created_at
     )
   )
-  
+
   # Add regular comments
   if (length(discussion$comments) > 0) {
     comment_items <- lapply(discussion$comments, function(comment) {
@@ -204,39 +225,24 @@ extract_discussion_items <- function(discussion) {
     })
     items <- c(items, comment_items)
   }
-  
+
   # Add review comments for PRs
-  if (!is.null(discussion$review_comments) && length(discussion$review_comments) > 0) {
-    review_comment_items <- lapply(discussion$review_comments, function(comment) {
-      list(
-        body = comment$body,
-        user_name = comment$user$login,
-        created_at = comment$created_at
-      )
-    })
+  if (
+    !is.null(discussion$review_comments) &&
+      length(discussion$review_comments) > 0
+  ) {
+    review_comment_items <- lapply(
+      discussion$review_comments,
+      function(comment) {
+        list(
+          body = comment$body,
+          user_name = comment$user$login,
+          created_at = comment$created_at
+        )
+      }
+    )
     items <- c(items, review_comment_items)
   }
-  
-  items
-}
 
-#' Get GitHub discussion items as YAML
-#'
-#' This function fetches a GitHub issue or PR discussion and returns all
-#' discussion items (the original post and all comments) as YAML.
-#' It's designed to be used as an AI tool to process GitHub discussions.
-#'
-#' @param reference GitHub reference in the format 'owner/repo#number' or a full URL
-#' @return A character string containing the YAML representation of all discussion items
-#' @export
-#' @importFrom yaml as.yaml
-discussion_items <- function(reference) {
-  # Fetch the discussion
-  discussion <- fetch_github_discussion(reference)
-  
-  # Extract the discussion items
-  items <- extract_discussion_items(discussion)
-  
-  # Convert to YAML and return
-  yaml::as.yaml(items)
+  items
 }
