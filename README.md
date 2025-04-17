@@ -15,7 +15,31 @@ devtools::install_github("lionel-/stories")
 
 ## Usage
 
+The git history of either a file or a function is retrieved using `git -p` or `git -L`. This history is summarised by an LLM.
+
+- You need a local git repository.
+- If your `origin` remote points to a github repo, you'll get better results. Links to Github issues and PRs are fetched and added as context. The LLM is free to open more links if it finds new ones that seem interesting.
+
 The package provides two main functions:
+
+### `view_story()`
+
+In RStudio or Positron, generate and view a story about the current file being edited:
+
+```r
+# View the story for the current file
+view_story()
+
+# View the story for a specific function in the current file
+view_story(fun = "important_function")
+```
+
+This function will:
+1. Determine the current file being edited
+2. Generate a story about its development history
+3. Render it to HTML
+4. Display it in the RStudio or Positron viewer pane
+
 
 ### `story()`
 
@@ -35,43 +59,16 @@ story("src/main.cpp", path = "~/projects/my-project")
 story("R/important_file.R", model = "gpt-4o")
 ```
 
-### `view_story()`
-
-In RStudio, generate and view a story about the current file being edited:
-
-```r
-# View the story for the current file
-view_story()
-
-# View the story for a specific function in the current file
-view_story(fun = "important_function")
-```
-
-This function will:
-1. Determine the current file being edited
-2. Generate a story about its development history
-3. Render it to HTML
-4. Display it in the RStudio viewer pane
-
-## How it works
-
-The package:
-1. Uses git commands to extract the commit history for a file or function
-2. Retrieves GitHub repository information
-3. Sends the git log to an AI model along with a carefully crafted prompt
-4. Processes the AI's response into a readable narrative
-5. Optionally renders the output as HTML for viewing in RStudio
-
 ## Dependencies
 
 - `ellmer`: For AI model interaction
 - `gh`: For GitHub API interactions
-- `rstudioapi`: For RStudio integration
+- `rstudioapi`: For RStudio and Positron integration
 - `rmarkdown`: For rendering HTML output (suggested)
 
 ## Development
 
-This package was vibe-coded with [aider](https://github.com/paul-gauthier/aider), an AI pair programming tool. The development process involved iterative refinement of the code with AI assistance, focusing on creating a clean, user-friendly interface for exploring code history.
+This package is an experiment and was "vibe-coded" with [aider](https://github.com/paul-gauthier/aider), an AI pair programming tool.
 
 ## License
 
