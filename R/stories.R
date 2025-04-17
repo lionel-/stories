@@ -21,6 +21,10 @@ stories <- function(path, fun, file, model = "gpt-4.1") {
 
   # Change to the repository directory
   setwd(path)
+  
+  # Get GitHub repository information
+  repo_info <- get_github_repo_info(path)
+  # Now you have repo_info$owner and repo_info$repo available
 
   # Create the git log target
   target <- sprintf(":%s:%s", fun, file)
@@ -52,4 +56,49 @@ additional commentary or explanations outside of the requested analysis.
 
   # Get the AI's response
   chat$chat("")
+}
+
+# Helper function to extract GitHub repo info
+get_github_repo_info <- function(path) {
+  # Save current working directory and restore on exit
+  old_wd <- getwd()
+  on.exit(setwd(old_wd), add = TRUE)
+  
+  # Change to the repository directory
+  setwd(path)
+  
+  # Get the remote URL using git command
+  remote_url <- system2("git", c("config", "--get", "remote.origin.url"), stdout = TRUE)
+  
+  if (length(remote_url) == 0 || remote_url == "") {
+    stop("No remote 'origin' found")
+  }
+  
+  # Parse the GitHub URL to extract owner and repo
+  if (grepl("github.com", remote_url)) {
+    # Handle SSH URLs like git@github.com:owner/repo.git
+    if (grepl("^git@github.com:", remote_url)) {
+      pattern <- "git@github.com:([^/]+)/([^.]+)(\\.git)?$"
+    } 
+    # Handle HTTPS URLs like https://github.com/owner/repo.git
+    else if (grepl("^https://github.com/", remote_url)) {
+      pattern <- "github.com/([^/]+)/([^/.]+)(\\.git)?$"
+    } else {
+      stop("Unrecognized GitHub URL format")
+    }
+    
+    matches <- regexec(pattern, remote_url)
+    result <- regmatches(remote_url, matches)[[1]]
+    
+    if (length(result) < 3) {
+      stop("Could not parse GitHub repository information from remote URL")
+    }
+    
+    return(list(
+      owner = result[2],
+      repo = result[3]
+    ))
+  } else {
+    stop("Remote URL does not appear to be a GitHub repository")
+  }
 }
