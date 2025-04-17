@@ -8,19 +8,19 @@
 #' This function uses git log and AI to create a narrative about how a specific
 #' function evolved over time.
 #'
-#' @param repo Path to the git repository
+#' @param path Path to the git repository
 #' @param fun Name of the function to analyze
 #' @param file Path to the file containing the function, relative to the repo root
 #' @param model The OpenAI model to use (default: "gpt-4.1")
 #' @return A character string containing the AI-generated story
 #' @export
-stories <- function(repo, fun, file, model = "gpt-4.1") {
+stories <- function(path, fun, file, model = "gpt-4.1") {
   # Save current working directory and restore on exit
   old_wd <- getwd()
   on.exit(setwd(old_wd), add = TRUE)
 
   # Change to the repository directory
-  setwd(repo)
+  setwd(path)
 
   # Create the git log target
   target <- sprintf(":%s:%s", fun, file)
@@ -32,18 +32,17 @@ stories <- function(repo, fun, file, model = "gpt-4.1") {
 
   # Create the prompt for the AI
   prompt <- "
-    I'm going to give you the output of `git log -L` on a given function.
-    Your job is to describe the development history of that function, giving
-    as many insights that you can find in terms of the objectives of the author(s),
-    what they struggled with, what was challenging, what necessitated a review of
-    their approach, or anything that might be interesting to know from an end user
-    perspective or a curious engineer viewpoint. Try to avoid trivial comments or
-    falsely intellectual ones. You're not pretentious, just an astute observer
-    eager to share insights but mindful of people's time.
+I will provide you with the output of `git log -L` for a specific function. Your
+task is to analyze the development history of the function and summarize it in a
+clear and insightful way. Focus on identifying the goals of the authors, any
+challenges they faced, changes in their approach, and any other noteworthy
+details that would be interesting or useful to engineers or end users. Avoid
+making trivial observations or overanalyzing unnecessarily—just provide
+thoughtful, concise insights.
 
-    Do not answer me, just give me the output of your resulting work.
-    A markdown document is perfect.
-  "
+Please present your response as a markdown document. Do not include any
+additional commentary or explanations outside of the requested analysis.
+"
 
   # Use the AI to generate the story
   chat <- ellmer::chat_openai(
