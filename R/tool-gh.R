@@ -173,3 +173,46 @@ fetch_all_review_comments <- function(owner, repo, number) {
   # Return the raw comments list
   comments
 }
+
+#' Extract discussion items from a GitHub issue or PR
+#'
+#' This function takes the result of `fetch_github_discussion` and extracts
+#' all discussion items (the original post and all comments) as a list of
+#' standardized items containing the body text and user name.
+#'
+#' @param discussion Result from `fetch_github_discussion`
+#' @return A list of discussion items, each with `body` and `user_name` fields
+#' @export
+extract_discussion_items <- function(discussion) {
+  # Start with the original post
+  items <- list(
+    list(
+      body = discussion$body,
+      user_name = discussion$user$login
+    )
+  )
+  
+  # Add regular comments
+  if (length(discussion$comments) > 0) {
+    comment_items <- lapply(discussion$comments, function(comment) {
+      list(
+        body = comment$body,
+        user_name = comment$user$login
+      )
+    })
+    items <- c(items, comment_items)
+  }
+  
+  # Add review comments for PRs
+  if (!is.null(discussion$review_comments) && length(discussion$review_comments) > 0) {
+    review_comment_items <- lapply(discussion$review_comments, function(comment) {
+      list(
+        body = comment$body,
+        user_name = comment$user$login
+      )
+    })
+    items <- c(items, review_comment_items)
+  }
+  
+  items
+}
