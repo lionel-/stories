@@ -14,7 +14,7 @@
 #' @param model The OpenAI model to use (default: "gpt-4.1")
 #' @return A character string containing the AI-generated story
 #' @export
-stories <- function(
+story <- function(
   file,
   fun = NULL,
   path = ".",
@@ -190,8 +190,8 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
   # Create a temporary file for the markdown output
   md_file <- tempfile(fileext = ".md")
 
-  # Redirect the stories output to the markdown file
-  md_content <- stories(
+  # Redirect the story output to the markdown file
+  md_content <- story(
     file = relative_path,
     fun = fun,
     path = repo_root,

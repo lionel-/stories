@@ -5,26 +5,8 @@
 \alias{stories-package}
 \alias{stories}
 \title{Make stories from your histories}
-\usage{
-stories(file, fun = NULL, path = ".", model = "gpt-4.1")
-}
-\arguments{
-\item{file}{Path to the file to analyze, relative to the repo root}
-
-\item{fun}{Optional name of the function to analyze within the file (default: NULL)}
-
-\item{path}{Path to the git repository (default: ".")}
-
-\item{model}{The OpenAI model to use (default: "gpt-4.1")}
-}
-\value{
-A character string containing the AI-generated story
-}
 \description{
 Uses AI to make sense of git histories.
-
-This function uses git log and AI to create a narrative about how a specific
-file or function evolved over time.
 }
 \author{
 \strong{Maintainer}: Lionel Henry \email{lionel@posit.co}

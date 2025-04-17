@@ -3,7 +3,7 @@
 export(discussion_items)
 export(extract_discussion_items)
 export(fetch_github_discussion)
-export(stories)
+export(story)
 export(view_story)
 importFrom(gh,gh)
 importFrom(yaml,as.yaml)
