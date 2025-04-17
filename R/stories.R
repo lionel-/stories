@@ -52,8 +52,12 @@ explore further linked discussions if they seem relevant, but avoid going too
 far. Be curious, but stop when you have enough context to provide a meaningful
 analysis.
 
+Mention relevant contributors with clickable links to their Github profiles
+if any.
+
 Please present your response as a markdown document. Do not include any
 additional commentary or explanations outside of the requested analysis.
+Make sure _every_ github references that you mention are clickable links.
 ",
     repo_info$owner,
     repo_info$repo
