@@ -139,3 +139,74 @@ get_github_repo_info <- function(path) {
     stop("Remote URL does not appear to be a GitHub repository")
   }
 }
+
+#' Generate and view a story about the current file in RStudio
+#'
+#' This function uses rstudioapi to determine the current file being edited,
+#' generates a story about its development history, renders it to HTML,
+#' and displays it in the RStudio viewer pane.
+#'
+#' @param fun Optional name of a function to analyze within the current file (default: NULL)
+#' @param model The OpenAI model to use (default: "gpt-4.1")
+#' @return Invisibly returns the path to the generated HTML file
+#' @export
+view_story <- function(fun = NULL, model = "gpt-4.1") {
+  # Check if running in RStudio
+  if (!rstudioapi::isAvailable()) {
+    stop("This function requires RStudio to be running")
+  }
+  
+  # Get the current document context
+  context <- rstudioapi::getActiveDocumentContext()
+  
+  # Get the file path of the current document
+  file_path <- context$path
+  if (file_path == "" || is.null(file_path)) {
+    stop("The current document must be saved before generating a story")
+  }
+  
+  # Get the repository root directory
+  repo_root <- system2("git", c("rev-parse", "--show-toplevel"), stdout = TRUE)
+  if (length(repo_root) == 0 || repo_root == "") {
+    stop("Could not determine the git repository root")
+  }
+  
+  # Get the file path relative to the repository root
+  relative_path <- system2("git", c("ls-files", "--full-name", file_path), stdout = TRUE)
+  if (length(relative_path) == 0 || relative_path == "") {
+    stop("The current file is not tracked by git")
+  }
+  
+  # Create a temporary file for the markdown output
+  md_file <- tempfile(fileext = ".md")
+  
+  # Redirect the stories output to the markdown file
+  md_content <- capture.output(
+    stories(file = relative_path, fun = fun, path = repo_root, model = model)
+  )
+  
+  # Write the markdown content to the file
+  writeLines(md_content, md_file)
+  
+  # Create a temporary file for the HTML output
+  html_file <- tempfile(fileext = ".html")
+  
+  # Check if rmarkdown is installed
+  if (!requireNamespace("rmarkdown", quietly = TRUE)) {
+    stop("Package 'rmarkdown' is needed to render HTML. Please install it.")
+  }
+  
+  # Render the markdown to HTML
+  rmarkdown::render(
+    input = md_file,
+    output_file = html_file,
+    output_format = "html_document",
+    quiet = TRUE
+  )
+  
+  # View the HTML in the RStudio viewer
+  rstudioapi::viewer(html_file)
+  
+  # Return the path to the HTML file invisibly
+  invisible(html_file)
+}

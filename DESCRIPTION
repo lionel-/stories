@@ -11,8 +11,10 @@ RoxygenNote: 7.3.2
 Imports:
     gh,
     yaml,
-    ellmer
+    ellmer,
+    rstudioapi
 Suggests:
     dotenv,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    rmarkdown
 Config/testthat/edition: 3
