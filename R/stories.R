@@ -164,7 +164,7 @@ get_github_repo_info <- function(path) {
 #' @param model The OpenAI model to use (default: "gpt-4.1")
 #' @return Invisibly returns the path to the generated HTML file
 #' @export
-view_story <- function(fun = NULL, model = "gpt-4.1") {
+view_story <- function(fun = NULL, model = "gpt-4.1", echo = TRUE) {
   # Check if running in RStudio
   if (!rstudioapi::isAvailable()) {
     stop("This function requires RStudio to be running")
@@ -202,7 +202,7 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
     fun = fun,
     path = project_root,
     model = model,
-    echo = FALSE
+    echo = echo
   )
 
   # Write the markdown content to the file
