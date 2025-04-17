@@ -10,7 +10,8 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
     gh,
-    yaml
+    yaml,
+    ellmer
 Suggests:
     dotenv,
     testthat (>= 3.0.0)
