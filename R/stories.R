@@ -46,6 +46,12 @@ details that would be interesting or useful to engineers or end users. Avoid
 making trivial observations or overanalyzing unnecessarily—just provide
 thoughtful, concise insights.
 
+If commit messages include references to GitHub pull requests or issues, please
+retrieve the associated discussions to gather additional context. You may also
+explore further linked discussions if they seem relevant, but avoid going too
+far. Be curious, but stop when you have enough context to provide a meaningful
+analysis.
+
 Please present your response as a markdown document. Do not include any
 additional commentary or explanations outside of the requested analysis.
 ",
@@ -58,6 +64,15 @@ additional commentary or explanations outside of the requested analysis.
     model = model,
     system_prompt = c(prompt, log)
   )
+
+  chat$register_tool(tool(
+    discussion_items,
+    "Fetch discussion items from a github reference",
+    ref = type_string(
+      "A github reference in owner/repo format or as a github URL",
+      required = TRUE
+    )
+  ))
 
   # Get the AI's response
   chat$chat("")
