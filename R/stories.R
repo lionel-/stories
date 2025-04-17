@@ -62,7 +62,8 @@ retrieve the associated discussions to gather additional context. You may also
 explore further linked discussions if they seem relevant, but avoid going too
 far. Be curious, but stop when you have enough context to provide a meaningful
 analysis. You should always at least fetch the references directly mentioned in
-the initial set of commit messages.
+the initial set of commit messages. Always mention the issues or PRs you've
+investigated in this way with clickable links.
 
 If there is anything major going on, please investigate (follow links if
 necessary) and report on this. Design changes (and the initial design or
