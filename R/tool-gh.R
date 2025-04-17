@@ -216,3 +216,17 @@ extract_discussion_items <- function(discussion) {
   
   items
 }
+
+#' Convert discussion items to YAML format
+#'
+#' This function takes the result of `extract_discussion_items` and converts it
+#' to a YAML string representation.
+#'
+#' @param items List of discussion items from `extract_discussion_items`
+#' @return A character string containing the YAML representation
+#' @export
+#' @importFrom yaml as.yaml
+discussion_items_to_yaml <- function(items) {
+  # Convert to YAML
+  yaml::as.yaml(items)
+}
