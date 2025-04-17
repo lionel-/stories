@@ -75,7 +75,7 @@ additional commentary or explanations outside of the requested analysis.
   ))
 
   # Get the AI's response
-  chat$chat("")
+  writeLines(chat$chat(""))
 }
 
 # Helper function to extract GitHub repo info
