@@ -1,9 +1,14 @@
+# Load environment variables from .env file if dotenv is available
+if (requireNamespace("dotenv", quietly = TRUE)) {
+  dotenv::load_dot_env(testthat::test_path("..", "..", ".env"))
+}
+
 test_that("fetch_github_discussion handles issues correctly", {
   # Check for GitHub token in multiple environment variables
-  has_token <- Sys.getenv("GITHUB_PAT") != "" || 
-               Sys.getenv("GITHUB_TOKEN") != "" || 
-               file.exists("~/.github/token")
-  
+  has_token <- Sys.getenv("GITHUB_PAT") != "" ||
+    Sys.getenv("GITHUB_TOKEN") != "" ||
+    file.exists("~/.github/token")
+
   skip_if_not(has_token, "No GitHub token available")
 
   # Use a real GitHub issue
@@ -18,10 +23,10 @@ test_that("fetch_github_discussion handles issues correctly", {
 
 test_that("fetch_github_discussion handles PRs correctly", {
   # Check for GitHub token in multiple environment variables
-  has_token <- Sys.getenv("GITHUB_PAT") != "" || 
-               Sys.getenv("GITHUB_TOKEN") != "" || 
-               file.exists("~/.github/token")
-  
+  has_token <- Sys.getenv("GITHUB_PAT") != "" ||
+    Sys.getenv("GITHUB_TOKEN") != "" ||
+    file.exists("~/.github/token")
+
   skip_if_not(has_token, "No GitHub token available")
 
   # Use a real GitHub PR

@@ -11,7 +11,7 @@ library(stories)
 
 # Load environment variables from .env file if dotenv is available
 if (requireNamespace("dotenv", quietly = TRUE)) {
-  dotenv::load_dot_env()
+  dotenv::load_dot_env(file.path("..", ".env"))
 }
 
 test_check("stories")
