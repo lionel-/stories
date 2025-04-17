@@ -178,17 +178,18 @@ fetch_all_review_comments <- function(owner, repo, number) {
 #'
 #' This function takes the result of `fetch_github_discussion` and extracts
 #' all discussion items (the original post and all comments) as a list of
-#' standardized items containing the body text and user name.
+#' standardized items containing the body text, user name, and creation date.
 #'
 #' @param discussion Result from `fetch_github_discussion`
-#' @return A list of discussion items, each with `body` and `user_name` fields
+#' @return A list of discussion items, each with `body`, `user_name`, and `created_at` fields
 #' @export
 extract_discussion_items <- function(discussion) {
   # Start with the original post
   items <- list(
     list(
       body = discussion$body,
-      user_name = discussion$user$login
+      user_name = discussion$user$login,
+      created_at = discussion$created_at
     )
   )
   
@@ -197,7 +198,8 @@ extract_discussion_items <- function(discussion) {
     comment_items <- lapply(discussion$comments, function(comment) {
       list(
         body = comment$body,
-        user_name = comment$user$login
+        user_name = comment$user$login,
+        created_at = comment$created_at
       )
     })
     items <- c(items, comment_items)
@@ -208,7 +210,8 @@ extract_discussion_items <- function(discussion) {
     review_comment_items <- lapply(discussion$review_comments, function(comment) {
       list(
         body = comment$body,
-        user_name = comment$user$login
+        user_name = comment$user$login,
+        created_at = comment$created_at
       )
     })
     items <- c(items, review_comment_items)
