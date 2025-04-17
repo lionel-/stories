@@ -2,6 +2,7 @@
 #'
 #' @name stories
 "_PACKAGE"
+
 #' Generate a story about the development history of a function
 #'
 #' This function uses git log and AI to create a narrative about how a specific
@@ -17,18 +18,18 @@ stories <- function(repo, fun, file, model = "gpt-4.1") {
   # Save current working directory and restore on exit
   old_wd <- getwd()
   on.exit(setwd(old_wd), add = TRUE)
-  
+
   # Change to the repository directory
   setwd(repo)
-  
+
   # Create the git log target
   target <- sprintf(":%s:%s", fun, file)
-  
+
   # Get the git log for the function
   log <- system2("git", c("log", "-L", target), stdout = TRUE)
   log <- c("```", log, "```")
   log <- paste(log, collapse = "\n")
-  
+
   # Create the prompt for the AI
   prompt <- "
     I'm going to give you the output of `git log -L` on a given function.
@@ -43,13 +44,13 @@ stories <- function(repo, fun, file, model = "gpt-4.1") {
     Do not answer me, just give me the output of your resulting work.
     A markdown document is perfect.
   "
-  
+
   # Use the AI to generate the story
   chat <- ellmer::chat_openai(
     model = model,
     system_prompt = c(prompt, log)
   )
-  
+
   # Get the AI's response
   chat$chat("")
 }
