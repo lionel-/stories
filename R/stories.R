@@ -14,7 +14,13 @@
 #' @param model The OpenAI model to use (default: "gpt-4.1")
 #' @return A character string containing the AI-generated story
 #' @export
-stories <- function(file, fun = NULL, path = ".", model = "gpt-4.1") {
+stories <- function(
+  file,
+  fun = NULL,
+  path = ".",
+  model = "gpt-4.1",
+  echo = TRUE
+) {
   # Save current working directory and restore on exit
   old_wd <- getwd()
   on.exit(setwd(old_wd), add = TRUE)
@@ -89,7 +95,7 @@ usable in a .md file.
   ))
 
   # Get the AI's response
-  writeLines(chat$chat(""))
+  chat$chat("", echo = echo)
 }
 
 # Helper function to extract GitHub repo info
@@ -155,47 +161,55 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
   if (!rstudioapi::isAvailable()) {
     stop("This function requires RStudio to be running")
   }
-  
+
   # Get the current document context
   context <- rstudioapi::getActiveDocumentContext()
-  
+
   # Get the file path of the current document
   file_path <- context$path
   if (file_path == "" || is.null(file_path)) {
     stop("The current document must be saved before generating a story")
   }
-  
+
   # Get the repository root directory
   repo_root <- system2("git", c("rev-parse", "--show-toplevel"), stdout = TRUE)
   if (length(repo_root) == 0 || repo_root == "") {
     stop("Could not determine the git repository root")
   }
-  
+
   # Get the file path relative to the repository root
-  relative_path <- system2("git", c("ls-files", "--full-name", file_path), stdout = TRUE)
+  relative_path <- system2(
+    "git",
+    c("ls-files", "--full-name", file_path),
+    stdout = TRUE
+  )
   if (length(relative_path) == 0 || relative_path == "") {
     stop("The current file is not tracked by git")
   }
-  
+
   # Create a temporary file for the markdown output
   md_file <- tempfile(fileext = ".md")
-  
+
   # Redirect the stories output to the markdown file
-  md_content <- capture.output(
-    stories(file = relative_path, fun = fun, path = repo_root, model = model)
+  md_content <- stories(
+    file = relative_path,
+    fun = fun,
+    path = repo_root,
+    model = model,
+    echo = FALSE
   )
-  
+
   # Write the markdown content to the file
   writeLines(md_content, md_file)
-  
+
   # Create a temporary file for the HTML output
   html_file <- tempfile(fileext = ".html")
-  
+
   # Check if rmarkdown is installed
   if (!requireNamespace("rmarkdown", quietly = TRUE)) {
     stop("Package 'rmarkdown' is needed to render HTML. Please install it.")
   }
-  
+
   # Render the markdown to HTML
   rmarkdown::render(
     input = md_file,
@@ -203,10 +217,10 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
     output_format = "html_document",
     quiet = TRUE
   )
-  
+
   # View the HTML in the RStudio viewer
   rstudioapi::viewer(html_file)
-  
+
   # Return the path to the HTML file invisibly
   invisible(html_file)
 }
