@@ -1,6 +1,7 @@
 #' Make stories from your histories
 #'
 #' @name stories
+#' @import ellmer
 "_PACKAGE"
 
 #' Generate a story about the development history of a file or function
@@ -181,7 +182,7 @@ view_story <- function(fun = NULL, model = "gpt-4.1") {
   # First, normalize paths to ensure consistent format
   norm_file_path <- normalizePath(file_path, winslash = "/")
   norm_project_root <- normalizePath(project_root, winslash = "/")
-  
+
   # Remove the project root from the file path to get the relative path
   relative_path <- sub(paste0("^", norm_project_root, "/?"), "", norm_file_path)
 
